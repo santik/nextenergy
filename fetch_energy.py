@@ -61,10 +61,21 @@ async def run():
                     except (ValueError, TypeError):
                         continue
                 
-                parsed_filename = os.path.join(OUTPUT_DIR, f"parsed_energy_prices_{date_str}.json")
+                # Ensure output directory exists
+                output_dir = os.path.join(OUTPUT_DIR, "data")
+                os.makedirs(output_dir, exist_ok=True)
+                
+                parsed_filename = os.path.join(output_dir, f"parsed_energy_prices_{date_str}.json")
                 print(f"Saving parsed data to {parsed_filename}...")
                 with open(parsed_filename, 'w', encoding='utf-8') as f:
                     json.dump(parsed_points, f, indent=2)
+                
+                # Save as latest
+                latest_filename = os.path.join(output_dir, "latest_energy_prices.json")
+                print(f"Updating latest file at {latest_filename}...")
+                with open(latest_filename, 'w', encoding='utf-8') as f:
+                    json.dump(parsed_points, f, indent=2)
+
                 print("Done.")
             except Exception as e:
                 print(f"Error during parsing: {e}")
