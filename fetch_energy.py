@@ -70,11 +70,20 @@ async def run():
                 with open(parsed_filename, 'w', encoding='utf-8') as f:
                     json.dump(parsed_points, f, indent=2)
                 
-                # Save as latest
+                # Save as latest with metadata
                 latest_filename = os.path.join(output_dir, "latest_energy_prices.json")
                 print(f"Updating latest file at {latest_filename}...")
+                
+                latest_data = {
+                    "meta": {
+                        "fetch_time": datetime.now().isoformat(),
+                        "date": date_str
+                    },
+                    "prices": parsed_points
+                }
+                
                 with open(latest_filename, 'w', encoding='utf-8') as f:
-                    json.dump(parsed_points, f, indent=2)
+                    json.dump(latest_data, f, indent=2)
 
                 print("Done.")
             except Exception as e:
