@@ -25,6 +25,7 @@ sensor:
 Add a **Markdown Card** to your dashboard. This version converts the UTC times from the file into your **local time**.
 
 ```yaml
+{% raw %}
 type: markdown
 content: >
   ### Energy Prices (Local Time)
@@ -38,12 +39,14 @@ content: >
     {%- set local_hour = local_dt.strftime('%H:00') -%}
   | {{ '**' if local_hour == now_local else '' }}{{ local_hour }}{{ '**' if local_hour == now_local else '' }} | {{ '%.2f'|format(item.price) }} | {{ '🔴' if item.price > 0.28 else '🟢' if item.price < 0.25 else '🟡' }} |
   {%- endfor %}
+{% endraw %}
 ```
 
 ### Option B: Current Price Sensor (UTC to Local)
 Add this **Template Sensor** to your `configuration.yaml`. It finds the price matching your current local hour.
 
 ```yaml
+{% raw %}
 template:
   - sensor:
       - name: "Current Energy Price"
@@ -66,6 +69,7 @@ template:
           {% else %}
             unavailable
           {% endif %}
+{% endraw %}
 ```
 
 After adding this, you can use the standard **Gauge Card** pointing to `sensor.current_energy_price`.
