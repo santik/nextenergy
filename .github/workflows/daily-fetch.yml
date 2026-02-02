@@ -1,6 +1,8 @@
 name: Fetch Energy Prices
 
 on:
+  push:
+    branches: [ "master" ]
   schedule:
     # Run daily at 06:00 AM Europe/Amsterdam time (approx 05:00 UTC)
     - cron: '0 5 * * *'
