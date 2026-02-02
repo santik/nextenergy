@@ -52,9 +52,8 @@ async def run():
                 parsed_points = []
                 for p in points:
                     try:
-                        # Label 23 corresponds to 00:00 (0u), Label 0 to 01:00 (1u)
                         label_int = int(p.get('Label'))
-                        hour = (label_int + 1) % 24
+                        hour = (label_int) % 24
                         price = float(p.get('Value'))
                         time_str = f"{hour:02d}:00"
                         parsed_points.append({"time": time_str, "price": price})

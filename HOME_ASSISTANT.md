@@ -1,15 +1,10 @@
-# Home Assistant Integration
+# Home Assistant Native Integration
 
-To visualize your energy prices in Home Assistant, we will do two things:
-1.  **Fetch the Data**: Create a REST sensor that pulls your JSON file.
-2.  **Display the Data**: Use `apexcharts-card` (a popular custom card) to graph the prices.
+This guide explains how to visualize energy prices using only **standard Home Assistant functionality** (no third-party plugins or HACS required).
 
-## Prerequisite
-You need [ApexCharts Card](https://github.com/RomRider/apexcharts-card) installed (available via HACS).
+## 1. configuration.yaml (Data Fetching)
 
-## 1. configuration.yaml (The Sensor)
-
-Add this to your `configuration.yaml` file (or `sensors.yaml`). This fetches the data every hour.
+Add this REST sensor to your `configuration.yaml`. It fetches the daily data and stores the prices in an attribute.
 
 ```yaml
 sensor:
@@ -24,46 +19,60 @@ sensor:
       - meta
 ```
 
-*Restart Home Assistant after adding this.*
+## 2. Native Dashboard Options
 
-## 2. Lovelace Dashboard (The Card)
-
-Add a "Manual" card to your dashboard and paste this configuration:
+### Option A: Visual Markdown Table (Timezone Aware)
+Add a **Markdown Card** to your dashboard. This version converts the UTC times from the file into your **local time**.
 
 ```yaml
-type: custom:apexcharts-card
-header:
-  show: true
-  title: NextEnergy Prices
-  show_states: true
-  colorize_states: true
-graph_span: 24h
-span:
-  start: day
-now:
-  show: true
-  label: Now
-series:
-  - entity: sensor.nextenergy_prices
-    type: column
-    name: Price
-    float_precision: 2
-    show:
-      in_header: true
-    data_generator: |
-      // The sensor state is the date (YYYY-MM-DD)
-      // The attribute 'prices' contains the list of {time, price}
-      
-      var date = entity.state; 
-      // If the sensor hasn't loaded logic yet, return empty
-      if (!entity.attributes.prices) return [];
-
-      return entity.attributes.prices.map((record) => {
-        // Construct ISO timestamp: "2026-02-02T14:00"
-        return [new Date(`${date}T${record.time}`).getTime(), record.price];
-      });
+type: markdown
+content: >
+  ### Energy Prices (Local Time)
+  | Time | Price | Status |
+  |:---:|:---:|:---:|
+  {% set date = state_attr('sensor.nextenergy_prices', 'meta').date %}
+  {% set now_local = now().strftime('%H:00') %}
+  {% for item in state_attr('sensor.nextenergy_prices', 'prices') %}
+    {%- set utc_time = date ~ "T" ~ item.time ~ "Z" -%}
+    {%- set local_dt = utc_time | as_datetime | as_local -%}
+    {%- set local_hour = local_dt.strftime('%H:00') -%}
+  | {{ '**' if local_hour == now_local else '' }}{{ local_hour }}{{ '**' if local_hour == now_local else '' }} | {{ '%.2f'|format(item.price) }} | {{ '🔴' if item.price > 0.28 else '🟢' if item.price < 0.25 else '🟡' }} |
+  {%- endfor %}
 ```
 
+### Option B: Current Price Sensor (UTC to Local)
+Add this **Template Sensor** to your `configuration.yaml`. It finds the price matching your current local hour.
+
+```yaml
+template:
+  - sensor:
+      - name: "Current Energy Price"
+        unique_id: current_energy_price
+        unit_of_measurement: "€/kWh"
+        state: >
+          {% set date = state_attr('sensor.nextenergy_prices', 'meta').date %}
+          {% set prices = state_attr('sensor.nextenergy_prices', 'prices') %}
+          {% if prices %}
+            {# Find the record where local conversion matches current local hour #}
+            {% set now_local_hour = now().hour %}
+            {% set ns = namespace(found=none) %}
+            {% for item in prices %}
+              {% set item_local_hour = (date ~ "T" ~ item.time ~ "Z") | as_datetime | as_local | attr('hour') %}
+              {% if item_local_hour == now_local_hour %}
+                {% set ns.found = item.price %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.found if ns.found is not none else 'unavailable' }}
+          {% else %}
+            unavailable
+          {% endif %}
+```
+
+After adding this, you can use the standard **Gauge Card** pointing to `sensor.current_energy_price`.
+
 ## Troubleshooting
--   **Sensor not showing attributes?** Check `Developer Tools -> States -> sensor.nextenergy_prices`. It should show a long list under `prices`.
--   **Graph empty?** Ensure `apexcharts-card` is up to date and supports `data_generator`.
+- **Missing Data**: Check **Developer Tools > States** and look for `sensor.nextenergy_prices`. 
+- **Time Offset**: If the times are still off, ensure your Home Assistant System Timezone is correctly set in **Settings > System > General**.
+
+
+*Restart Home Assistant after adding the sensors to your configuration.*
