@@ -4,8 +4,8 @@ on:
   push:
     branches: [ "master" ]
   schedule:
-    # Run daily at 06:00 AM Europe/Amsterdam time (approx 05:00 UTC)
-    - cron: '0 12 * * *'
+    # Run daily at 14:00 UTC
+    - cron: '0 14 * * *'
   workflow_dispatch: # Allow manual trigger via UI
 
 permissions:
@@ -31,20 +31,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install playwright
           playwright install chromium
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install playwright
-          playwright install chromium
-
-      - name: Run fetch script
-        run: python fetch_energy.py
 
       - name: Fetch and Commit
         run: |
