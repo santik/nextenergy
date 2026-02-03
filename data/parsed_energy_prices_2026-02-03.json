@@ -1,97 +1,193 @@
 [
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "23:00",
     "price": 0.24
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "00:00",
     "price": 0.24
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "01:00",
     "price": 0.23
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "02:00",
     "price": 0.22
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "03:00",
     "price": 0.22
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "04:00",
     "price": 0.23
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "05:00",
     "price": 0.24
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "06:00",
     "price": 0.25
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "07:00",
     "price": 0.26
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "08:00",
     "price": 0.26
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "09:00",
     "price": 0.25
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "10:00",
     "price": 0.24
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "11:00",
     "price": 0.24
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "12:00",
     "price": 0.24
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "13:00",
     "price": 0.25
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "14:00",
     "price": 0.25
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "15:00",
     "price": 0.26
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "16:00",
     "price": 0.28
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "17:00",
     "price": 0.28
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "18:00",
     "price": 0.28
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "19:00",
     "price": 0.27
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "20:00",
     "price": 0.26
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "21:00",
     "price": 0.26
   },
   {
+<<<<<<< HEAD
+=======
+    "date": "2026-02-03",
+>>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
     "time": "22:00",
     "price": 0.25
   }

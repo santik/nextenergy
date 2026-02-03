@@ -13,7 +13,7 @@ sensor:
     unique_id: nextenergy_prices
     resource: https://santik.github.io/nextenergy/data/latest_energy_prices.json
     scan_interval: 3600
-    value_template: "{{ value_json.meta.date }}"
+    value_template: "{{ value_json.meta.today }}"
     json_attributes:
       - prices
       - meta
@@ -31,13 +31,12 @@ content: >
   ### Energy Prices (Local Time)
   | Time | Price | Status |
   |:---:|:---:|:---:|
-  {% set date = state_attr('sensor.nextenergy_prices', 'meta').date %}
-  {% set now_local = now().strftime('%H:00') %}
   {% for item in state_attr('sensor.nextenergy_prices', 'prices') %}
-    {%- set utc_time = date ~ "T" ~ item.time ~ "Z" -%}
+    {%- set utc_time = item.date ~ "T" ~ item.time ~ "Z" -%}
     {%- set local_dt = utc_time | as_datetime | as_local -%}
     {%- set local_hour = local_dt.strftime('%H:00') -%}
-  | {{ '**' if local_hour == now_local else '' }}{{ local_hour }}{{ '**' if local_hour == now_local else '' }} | {{ '%.2f'|format(item.price) }} | {{ '🔴' if item.price > 0.28 else '🟢' if item.price < 0.25 else '🟡' }} |
+    {%- set local_date = local_dt.strftime('%Y-%m-%d') -%}
+  | {{ '**' if local_hour == now_local and local_date == now().strftime('%Y-%m-%d') else '' }}{{ local_hour }}{{ '**' if local_hour == now_local and local_date == now().strftime('%Y-%m-%d') else '' }} | {{ '%.2f'|format(item.price) }} | {{ '🔴' if item.price > 0.28 else '🟢' if item.price < 0.25 else '🟡' }} |
   {%- endfor %}
 {% endraw %}
 ```
@@ -53,15 +52,14 @@ template:
         unique_id: current_energy_price
         unit_of_measurement: "€/kWh"
         state: >
-          {% set date = state_attr('sensor.nextenergy_prices', 'meta').date %}
           {% set prices = state_attr('sensor.nextenergy_prices', 'prices') %}
           {% if prices %}
-            {# Find the record where local conversion matches current local hour #}
-            {% set now_local_hour = now().hour %}
+            {# Find the record where local conversion matches current local time #}
+            {% set now_utc = now().astimezone(as_utc()) %}
             {% set ns = namespace(found=none) %}
             {% for item in prices %}
-              {% set item_local_hour = (date ~ "T" ~ item.time ~ "Z") | as_datetime | as_local | attr('hour') %}
-              {% if item_local_hour == now_local_hour %}
+              {% set item_utc = (item.date ~ "T" ~ item.time ~ "Z") | as_datetime | as_utc %}
+              {% if item_utc <= now_utc < item_utc + timedelta(hours=1) %}
                 {% set ns.found = item.price %}
               {% endif %}
             {% endfor %}
