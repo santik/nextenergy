@@ -1,6 +1,10 @@
 {
   "meta": {
+<<<<<<< HEAD
     "fetch_time": "2026-02-03T19:48:54.283696",
+=======
+    "fetch_time": "2026-02-03T21:42:52.644659",
+>>>>>>> 7e83f1e (Update test data with robust selector run)
     "today": "2026-02-03"
   },
   "prices": [
