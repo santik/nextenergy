@@ -1,12 +1,7 @@
 {
   "meta": {
-<<<<<<< HEAD
-    "fetch_time": "2026-02-03T01:57:22.650790",
-    "date": "2026-02-03"
-=======
-    "fetch_time": "2026-02-03T15:57:20.177145",
+    "fetch_time": "2026-02-03T15:03:54.564057",
     "today": "2026-02-03"
->>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
   },
   "prices": [
     {
@@ -33,22 +28,6 @@
       "date": "2026-02-03",
       "time": "03:00",
       "price": 0.22
-<<<<<<< HEAD
-    },
-    {
-      "time": "04:00",
-      "price": 0.23
-    },
-    {
-      "time": "05:00",
-      "price": 0.24
-    },
-    {
-      "time": "06:00",
-      "price": 0.25
-    },
-    {
-=======
     },
     {
       "date": "2026-02-03",
@@ -67,7 +46,6 @@
     },
     {
       "date": "2026-02-03",
->>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
       "time": "07:00",
       "price": 0.26
     },
@@ -105,14 +83,6 @@
       "date": "2026-02-03",
       "time": "14:00",
       "price": 0.25
-<<<<<<< HEAD
-    },
-    {
-      "time": "15:00",
-      "price": 0.26
-    },
-    {
-=======
     },
     {
       "date": "2026-02-03",
@@ -121,7 +91,6 @@
     },
     {
       "date": "2026-02-03",
->>>>>>> 3826617 (Fetch tomorrow's prices and add date to records for easier HA integration)
       "time": "16:00",
       "price": 0.28
     },
@@ -268,12 +237,12 @@
     {
       "date": "2026-02-04",
       "time": "21:00",
-      "price": 0.26
+      "price": 0.25
     },
     {
       "date": "2026-02-04",
       "time": "22:00",
-      "price": 0.25
+      "price": 0.24
     }
   ]
 }
