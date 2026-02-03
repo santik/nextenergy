@@ -45,12 +45,27 @@ async def run():
         # Try to click "Next" to get tomorrow's prices
         print("Clicking 'Next' for tomorrow's prices...")
         try:
-            next_button = page.locator("#b1-b3-b1-Next")
+            # More robust selector targeting the arrow icon container
+            robust_selector = ".arrow-container:has(.fa-angle-right)"
+            fallback_id = "#b1-b3-b1-Next"
+            
+            # Find the button
+            next_button = page.locator(robust_selector)
+            
+            # Check visibility and click
             if await next_button.is_visible():
+                print(f"Clicking next button using robust selector: {robust_selector}")
                 await next_button.click()
                 await page.wait_for_timeout(3000)
             else:
-                print("Next button not found or not visible.")
+                # Fallback to ID if robust selector fails
+                print(f"Robust selector not visible, trying fallback: {fallback_id}")
+                next_button_id = page.locator(fallback_id)
+                if await next_button_id.is_visible():
+                    await next_button_id.click()
+                    await page.wait_for_timeout(3000)
+                else:
+                    print("Next button not found or not visible.")
         except Exception as e:
             print(f"Could not click next button: {e}")
 
