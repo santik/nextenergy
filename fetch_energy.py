@@ -8,6 +8,23 @@ OUTPUT_DIR = os.path.dirname(os.path.abspath(__file__))
 URL = "https://mijn.nextenergy.nl/Website_CW/MarketPrices"
 
 async def run():
+    # 1. Early check: Do we already have tomorrow's data?
+    from datetime import timedelta
+    tomorrow_str = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    latest_filename = os.path.join(OUTPUT_DIR, "data", "latest_energy_prices.json")
+    
+    if os.path.exists(latest_filename):
+        try:
+            with open(latest_filename, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+                prices = existing_data.get('prices', [])
+                # Check if any price entry has tomorrow's date
+                if any(p.get('date') == tomorrow_str for p in prices):
+                    print(f"Tomorrow's data ({tomorrow_str}) already present in {latest_filename}. Skipping fetch.")
+                    return
+        except Exception as e:
+            print(f"Could not read existing data (continuing with fetch): {e}")
+
     async with async_playwright() as p:
         print("Launching browser...")
         browser = await p.chromium.launch(headless=True)
