@@ -1,166 +1,211 @@
 import asyncio
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from playwright.async_api import async_playwright
 
 OUTPUT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 URL = "https://mijn.nextenergy.nl/Website_CW/MarketPrices"
+ENDPOINT = "/Website_CW/screenservices/Website_CW/Blocks/WB_EnergyPrices/DataActionGetDataPoints"
+
+USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+)
+
+# The MarketPrices page serves every series through one data-action, selected
+# by the request's `Filter`. We fetch two electricity price levels:
+#   - import  -> CostsLevel "TotalPrice"  incl. VAT (what you pay)
+#   - export  -> CostsLevel "MarketPrice" excl. VAT (feed-in / spot price)
+# Gas is not an hourly series; it comes back as the scalar `CurrentGasPrice`
+# field on the (TotalPrice) response as a single daily price.
+
+# JS replay helper: fires each job from the page context so the OutSystems
+# session cookies are reused; only the CSRF token and Filter need supplying.
+REPLAY_JS = """async ([endpoint, token, template, jobs, hour]) => {
+    const out = [];
+    for (const job of jobs) {
+        const body = JSON.parse(JSON.stringify(template));
+        body.screenData.variables.Filter.CostsLevel = job.costsLevel;
+        body.screenData.variables.Filter.PriceIncludingVAT = job.vat;
+        body.screenData.variables.Filter.PriceDate = job.date;
+        body.screenData.variables.Filter.CurrentHour = hour;
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    'Accept': 'application/json',
+                    'OutSystems-locale': 'nl-NL',
+                    'X-CSRFToken': token
+                },
+                body: JSON.stringify(body),
+                credentials: 'include'
+            });
+            const j = await res.json();
+            out.push({
+                job,
+                status: res.status,
+                data: j.data || null,
+                exception: j.exception ? (j.exception.message || 'error') : null
+            });
+        } catch (e) {
+            out.push({ job, error: String(e) });
+        }
+    }
+    return out;
+}"""
+
+
+def parse_hourly(data):
+    """Map a DataPoints list to {time: price}. The hour is the point's INDEX
+    in the list (the chart's x-axis order, confirmed by the Tooltip "Nu"),
+    not the `Label` field."""
+    points = (data.get("DataPoints") or {}).get("List") or []
+    day = {}
+    for i, pt in enumerate(points):
+        try:
+            day[f"{i:02d}:00"] = float(pt.get("Value"))
+        except (ValueError, TypeError):
+            continue
+    return day
+
 
 async def run():
-    # 1. Early check: Do we already have tomorrow's data?
-    from datetime import timedelta
-    tomorrow_str = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    latest_filename = os.path.join(OUTPUT_DIR, "data", "latest_energy_prices.json")
-    
+    today = datetime.now()
+    today_str = today.strftime("%Y-%m-%d")
+    tomorrow_str = (today + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    # Early check: do we already have tomorrow's data?
+    latest_filename = os.path.join(DATA_DIR, "latest_energy_prices.json")
     if os.path.exists(latest_filename):
         try:
-            with open(latest_filename, 'r', encoding='utf-8') as f:
+            with open(latest_filename, "r", encoding="utf-8") as f:
                 existing_data = json.load(f)
-                prices = existing_data.get('prices', [])
-                # Check if any price entry has tomorrow's date
-                if any(p.get('date') == tomorrow_str for p in prices):
-                    print(f"Tomorrow's data ({tomorrow_str}) already present in {latest_filename}. Skipping fetch.")
-                    return
+            if any(p.get("date") == tomorrow_str for p in existing_data.get("prices", [])):
+                print(f"Tomorrow's data ({tomorrow_str}) already present. Skipping fetch.")
+                return
         except Exception as e:
             print(f"Could not read existing data (continuing with fetch): {e}")
 
     async with async_playwright() as p:
         print("Launching browser...")
         browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
-            locale="nl-NL"
-        )
+        context = await browser.new_context(user_agent=USER_AGENT, locale="nl-NL")
         page = await context.new_page()
 
-        # Variable to store captured responses
-        captured_responses = []
+        # Capture the first data-action request to reuse its CSRF token + body.
+        captured = {}
 
-        # Define response handler
-        async def handle_response(response):
-            if "DataActionGetDataPoints" in response.url and response.request.method == "POST":
-                try:
-                    data = await response.json()
-                    # Only append if it actually has data points
-                    if data.get('data', {}).get('DataPoints', {}).get('List'):
-                        print(f"Intercepted energy prices from: {response.url}")
-                        captured_responses.append({
-                            'data': data,
-                            'timestamp': datetime.now().isoformat()
-                        })
-                except Exception as e:
-                    print(f"Error parsing JSON: {e}")
+        def handle_request(request):
+            if "DataActionGetDataPoints" in request.url and request.method == "POST":
+                if "body" not in captured:
+                    token = request.headers.get("x-csrftoken")
+                    body = request.post_data
+                    if token and body:
+                        captured["token"] = token
+                        captured["body"] = body
+                        print("Captured request template and CSRF token.")
 
-        # Listen for the specific response
-        page.on("response", handle_response)
+        page.on("request", handle_request)
 
         print(f"Navigating to {URL}...")
         await page.goto(URL, wait_until="networkidle")
         await page.wait_for_timeout(3000)
 
-        # Try to click "Next" to get tomorrow's prices
-        print("Clicking 'Next' for tomorrow's prices...")
-        try:
-            # More robust selector targeting the arrow icon container
-            robust_selector = ".arrow-container:has(.fa-angle-right)"
-            fallback_id = "#b1-b3-b1-Next"
-            
-            # Find the button
-            next_button = page.locator(robust_selector)
-            
-            # Check visibility and click
-            if await next_button.is_visible():
-                print(f"Clicking next button using robust selector: {robust_selector}")
-                await next_button.click()
-                await page.wait_for_timeout(3000)
-            else:
-                # Fallback to ID if robust selector fails
-                print(f"Robust selector not visible, trying fallback: {fallback_id}")
-                next_button_id = page.locator(fallback_id)
-                if await next_button_id.is_visible():
-                    await next_button_id.click()
-                    await page.wait_for_timeout(3000)
-                else:
-                    print("Next button not found or not visible.")
-        except Exception as e:
-            print(f"Could not click next button: {e}")
+        if "body" not in captured:
+            print("Failed to capture request template/token; aborting.")
+            await browser.close()
+            return
 
-        if captured_responses:
-            print(f"Processing {len(captured_responses)} days of data...")
-            all_parsed_points = []
-            
-            # Use the date from the capture timestamp for the first one as "Today"
-            # and +1 day for subsequent ones if they exist.
-            # However, a safer way is to peek at the dates if they were in the JSON,
-            # but since they aren't clearly labeled in the points, we use the fetch context.
-            from datetime import timedelta
-            start_date = datetime.now()
+        template = json.loads(captured["body"])
+        token = captured["token"]
 
-            for i, response_obj in enumerate(captured_responses):
-                try:
-                    current_date = start_date + timedelta(days=i)
-                    date_str = current_date.strftime("%Y-%m-%d")
-                    
-                    raw_data = response_obj['data']
-                    points = raw_data.get('data', {}).get('DataPoints', {}).get('List', [])
-                    day_parsed_points = []
-                    
-                    for p in points:
-                        try:
-                            label_int = int(p.get('Label'))
-                            hour = (label_int) % 24
-                            price = float(p.get('Value'))
-                            time_str = f"{hour:02d}:00"
-                            # Add date to the record
-                            day_parsed_points.append({
-                                "date": date_str,
-                                "time": time_str, 
-                                "price": price
-                            })
-                        except (ValueError, TypeError):
-                            continue
-                    
-                    if not day_parsed_points:
-                        continue
+        jobs = [
+            {"key": "import", "date": today_str, "costsLevel": "TotalPrice", "vat": True},
+            {"key": "import", "date": tomorrow_str, "costsLevel": "TotalPrice", "vat": True},
+            {"key": "export", "date": today_str, "costsLevel": "MarketPrice", "vat": False},
+            {"key": "export", "date": tomorrow_str, "costsLevel": "MarketPrice", "vat": False},
+        ]
 
-                    all_parsed_points.extend(day_parsed_points)
-                    
-                    # Ensure output directory exists
-                    output_dir = os.path.join(OUTPUT_DIR, "data")
-                    os.makedirs(output_dir, exist_ok=True)
-                    
-                    # Save individual day file
-                    parsed_filename = os.path.join(output_dir, f"parsed_energy_prices_{date_str}.json")
-                    print(f"Saving {date_str} data to {parsed_filename}...")
-                    with open(parsed_filename, 'w', encoding='utf-8') as f:
-                        json.dump(day_parsed_points, f, indent=2)
-
-                except Exception as e:
-                    print(f"Error parsing day {i}: {e}")
-
-            # Save combined 'latest' file
-            if all_parsed_points:
-                output_dir = os.path.join(OUTPUT_DIR, "data")
-                latest_filename = os.path.join(output_dir, "latest_energy_prices.json")
-                print(f"Updating combined latest file at {latest_filename}...")
-                
-                latest_data = {
-                    "meta": {
-                        "fetch_time": datetime.now().isoformat(),
-                        "today": start_date.strftime("%Y-%m-%d")
-                    },
-                    "prices": all_parsed_points
-                }
-                
-                with open(latest_filename, 'w', encoding='utf-8') as f:
-                    json.dump(latest_data, f, indent=2)
-
-                print("Done successfully.")
-        else:
-            print("No data was captured from the API.")
+        print(f"Requesting {len(jobs)} series...")
+        results = await page.evaluate(
+            REPLAY_JS, [ENDPOINT, token, template, jobs, today.hour]
+        )
 
         await browser.close()
+
+    # Parse results into import (hourly), export (hourly), gas (daily).
+    import_prices = {}  # date -> {time: price}
+    export_prices = {}  # date -> {time: price}
+    gas_prices = {}     # date -> price
+
+    for r in results:
+        job = r.get("job", {})
+        if r.get("error") or r.get("exception") or not r.get("data"):
+            print(f"Skipping {job.get('key')} {job.get('date')}: "
+                  f"{r.get('error') or r.get('exception') or 'no data'}")
+            continue
+
+        data = r["data"]
+        day = parse_hourly(data)
+
+        if job["key"] == "import":
+            if day:
+                import_prices[job["date"]] = day
+            # Gas comes as a scalar on the TotalPrice response (one price/day).
+            try:
+                gas = float(data.get("CurrentGasPrice"))
+                if gas > 0:
+                    gas_prices[job["date"]] = gas
+            except (ValueError, TypeError):
+                pass
+        else:
+            if day:
+                export_prices[job["date"]] = day
+
+    # Merge import + export into one chronological price list.
+    all_prices = []
+    for date in sorted(import_prices.keys()):
+        for time in sorted(import_prices[date].keys()):
+            rec = {"date": date, "time": time, "price": import_prices[date][time]}
+            export = export_prices.get(date, {}).get(time)
+            if export is not None:
+                rec["export_price"] = export
+            all_prices.append(rec)
+
+    gas_list = [{"date": d, "price": gas_prices[d]} for d in sorted(gas_prices.keys())]
+
+    if not all_prices:
+        print("No data was captured from the API.")
+        return
+
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+    # Per-day history files (import + export merged).
+    for date in sorted(import_prices.keys()):
+        day_records = [r for r in all_prices if r["date"] == date]
+        parsed_filename = os.path.join(DATA_DIR, f"parsed_energy_prices_{date}.json")
+        print(f"Saving {date} data to {parsed_filename}...")
+        with open(parsed_filename, "w", encoding="utf-8") as f:
+            json.dump(day_records, f, indent=2)
+
+    # Combined 'latest' file.
+    latest_data = {
+        "meta": {
+            "fetch_time": datetime.now().isoformat(),
+            "today": today_str,
+        },
+        "prices": all_prices,
+        "gas": gas_list,
+    }
+    print(f"Updating combined latest file at {latest_filename}...")
+    with open(latest_filename, "w", encoding="utf-8") as f:
+        json.dump(latest_data, f, indent=2)
+
+    print("Done successfully.")
+
 
 if __name__ == "__main__":
     asyncio.run(run())
