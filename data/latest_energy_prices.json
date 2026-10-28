@@ -1,153 +1,9 @@
 {
   "meta": {
-    "fetch_time": "2026-10-27T16:10:40.623749",
-    "today": "2026-10-27"
+    "fetch_time": "2026-10-28T19:21:27.360784",
+    "today": "2026-10-28"
   },
   "prices": [
-    {
-      "date": "2026-10-27",
-      "time": "00:00",
-      "price": 0.28,
-      "export_price": 0.12
-    },
-    {
-      "date": "2026-10-27",
-      "time": "01:00",
-      "price": 0.27,
-      "export_price": 0.11
-    },
-    {
-      "date": "2026-10-27",
-      "time": "02:00",
-      "price": 0.25,
-      "export_price": 0.1
-    },
-    {
-      "date": "2026-10-27",
-      "time": "03:00",
-      "price": 0.24,
-      "export_price": 0.09
-    },
-    {
-      "date": "2026-10-27",
-      "time": "04:00",
-      "price": 0.24,
-      "export_price": 0.09
-    },
-    {
-      "date": "2026-10-27",
-      "time": "05:00",
-      "price": 0.24,
-      "export_price": 0.09
-    },
-    {
-      "date": "2026-10-27",
-      "time": "06:00",
-      "price": 0.29,
-      "export_price": 0.13
-    },
-    {
-      "date": "2026-10-27",
-      "time": "07:00",
-      "price": 0.37,
-      "export_price": 0.19
-    },
-    {
-      "date": "2026-10-27",
-      "time": "08:00",
-      "price": 0.36,
-      "export_price": 0.19
-    },
-    {
-      "date": "2026-10-27",
-      "time": "09:00",
-      "price": 0.3,
-      "export_price": 0.14
-    },
-    {
-      "date": "2026-10-27",
-      "time": "10:00",
-      "price": 0.22,
-      "export_price": 0.07
-    },
-    {
-      "date": "2026-10-27",
-      "time": "11:00",
-      "price": 0.21,
-      "export_price": 0.06
-    },
-    {
-      "date": "2026-10-27",
-      "time": "12:00",
-      "price": 0.2,
-      "export_price": 0.06
-    },
-    {
-      "date": "2026-10-27",
-      "time": "13:00",
-      "price": 0.22,
-      "export_price": 0.07
-    },
-    {
-      "date": "2026-10-27",
-      "time": "14:00",
-      "price": 0.25,
-      "export_price": 0.1
-    },
-    {
-      "date": "2026-10-27",
-      "time": "15:00",
-      "price": 0.33,
-      "export_price": 0.17
-    },
-    {
-      "date": "2026-10-27",
-      "time": "16:00",
-      "price": 0.42,
-      "export_price": 0.24
-    },
-    {
-      "date": "2026-10-27",
-      "time": "17:00",
-      "price": 0.45,
-      "export_price": 0.26
-    },
-    {
-      "date": "2026-10-27",
-      "time": "18:00",
-      "price": 0.47,
-      "export_price": 0.28
-    },
-    {
-      "date": "2026-10-27",
-      "time": "19:00",
-      "price": 0.47,
-      "export_price": 0.28
-    },
-    {
-      "date": "2026-10-27",
-      "time": "20:00",
-      "price": 0.45,
-      "export_price": 0.26
-    },
-    {
-      "date": "2026-10-27",
-      "time": "21:00",
-      "price": 0.43,
-      "export_price": 0.24
-    },
-    {
-      "date": "2026-10-27",
-      "time": "22:00",
-      "price": 0.42,
-      "export_price": 0.23
-    },
-    {
-      "date": "2026-10-27",
-      "time": "23:00",
-      "price": 0.4,
-      "export_price": 0.22
-    },
     {
       "date": "2026-10-28",
       "time": "00:00",
@@ -291,12 +147,160 @@
       "time": "23:00",
       "price": 0.42,
       "export_price": 0.24
+    },
+    {
+      "date": "2026-10-29",
+      "time": "00:00",
+      "price": 0.42,
+      "export_price": 0.24
+    },
+    {
+      "date": "2026-10-29",
+      "time": "01:00",
+      "price": 0.42,
+      "export_price": 0.24
+    },
+    {
+      "date": "2026-10-29",
+      "time": "02:00",
+      "price": 0.41,
+      "export_price": 0.23
+    },
+    {
+      "date": "2026-10-29",
+      "time": "03:00",
+      "price": 0.42,
+      "export_price": 0.23
+    },
+    {
+      "date": "2026-10-29",
+      "time": "04:00",
+      "price": 0.42,
+      "export_price": 0.24
+    },
+    {
+      "date": "2026-10-29",
+      "time": "05:00",
+      "price": 0.43,
+      "export_price": 0.25
+    },
+    {
+      "date": "2026-10-29",
+      "time": "06:00",
+      "price": 0.51,
+      "export_price": 0.31
+    },
+    {
+      "date": "2026-10-29",
+      "time": "07:00",
+      "price": 0.56,
+      "export_price": 0.35
+    },
+    {
+      "date": "2026-10-29",
+      "time": "08:00",
+      "price": 0.59,
+      "export_price": 0.38
+    },
+    {
+      "date": "2026-10-29",
+      "time": "09:00",
+      "price": 0.52,
+      "export_price": 0.32
+    },
+    {
+      "date": "2026-10-29",
+      "time": "10:00",
+      "price": 0.47,
+      "export_price": 0.28
+    },
+    {
+      "date": "2026-10-29",
+      "time": "11:00",
+      "price": 0.45,
+      "export_price": 0.26
+    },
+    {
+      "date": "2026-10-29",
+      "time": "12:00",
+      "price": 0.44,
+      "export_price": 0.25
+    },
+    {
+      "date": "2026-10-29",
+      "time": "13:00",
+      "price": 0.44,
+      "export_price": 0.25
+    },
+    {
+      "date": "2026-10-29",
+      "time": "14:00",
+      "price": 0.47,
+      "export_price": 0.28
+    },
+    {
+      "date": "2026-10-29",
+      "time": "15:00",
+      "price": 0.54,
+      "export_price": 0.34
+    },
+    {
+      "date": "2026-10-29",
+      "time": "16:00",
+      "price": 0.62,
+      "export_price": 0.4
+    },
+    {
+      "date": "2026-10-29",
+      "time": "17:00",
+      "price": 0.79,
+      "export_price": 0.54
+    },
+    {
+      "date": "2026-10-29",
+      "time": "18:00",
+      "price": 0.7,
+      "export_price": 0.47
+    },
+    {
+      "date": "2026-10-29",
+      "time": "19:00",
+      "price": 0.65,
+      "export_price": 0.43
+    },
+    {
+      "date": "2026-10-29",
+      "time": "20:00",
+      "price": 0.55,
+      "export_price": 0.35
+    },
+    {
+      "date": "2026-10-29",
+      "time": "21:00",
+      "price": 0.5,
+      "export_price": 0.31
+    },
+    {
+      "date": "2026-10-29",
+      "time": "22:00",
+      "price": 0.47,
+      "export_price": 0.28
+    },
+    {
+      "date": "2026-10-29",
+      "time": "23:00",
+      "price": 0.44,
+      "export_price": 0.26
     }
   ],
   "gas": [
     {
-      "date": "2026-10-27",
+      "date": "2026-10-28",
       "price": 1.95
+    },
+    {
+      "date": "2026-10-29",
+      "price": 2.01
     }
   ]
 }
