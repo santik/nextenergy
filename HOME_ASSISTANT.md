@@ -41,6 +41,7 @@ Each entry in `prices` now carries both the consumption price and the feed-in pr
 Add a **Markdown Card** to your dashboard. This version converts the UTC times from the file into your **local time**.
 
 ```yaml
+{% raw %}
 type: markdown
 content: |
   ### Energy Prices (Local Time)
@@ -51,12 +52,14 @@ content: |
   {% set is_now = local_dt.strftime('%Y-%m-%d %H') == now().strftime('%Y-%m-%d %H') -%}
   | {{ '**' if is_now else '' }}{{ local_dt.strftime('%H:00') }}{{ '**' if is_now else '' }} | {{ '%.2f'|format(item.price) }} | {{ '%.2f'|format(item.export_price) if item.export_price is defined else '—' }} | {{ '🔴' if item.price > 0.28 else '🟢' if item.price < 0.25 else '🟡' }} |
   {% endfor -%}
+{% endraw %}
 ```
 
 ### Option B: Current Price Sensor (UTC to Local)
 Add this **Template Sensor** to your `configuration.yaml`. It finds the price matching your current local hour.
 
 ```yaml
+{% raw %}
 template:
   - sensor:
       - name: "Current Energy Price"
@@ -78,6 +81,7 @@ template:
           {% else %}
             unavailable
           {% endif %}
+{% endraw %}
 ```
 
 After adding this, you can use the standard **Gauge Card** pointing to `sensor.current_energy_price`.
@@ -86,6 +90,7 @@ After adding this, you can use the standard **Gauge Card** pointing to `sensor.c
 Same as Option B, but reads `export_price` (the feed-in / teruglevering value).
 
 ```yaml
+{% raw %}
 template:
   - sensor:
       - name: "Current Export Price"
@@ -106,12 +111,14 @@ template:
           {% else %}
             unavailable
           {% endif %}
+{% endraw %}
 ```
 
 ### Option D: Today's Gas Price Sensor
 Gas is a single daily price (€/m³), so this just picks today's entry from the `gas` list.
 
 ```yaml
+{% raw %}
 template:
   - sensor:
       - name: "Gas Price Today"
@@ -129,6 +136,7 @@ template:
           {% else %}
             unavailable
           {% endif %}
+{% endraw %}
 ```
 
 ## Troubleshooting
