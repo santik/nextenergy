@@ -4,8 +4,8 @@ on:
   push:
     branches: [ "master" ]
   schedule:
-    # Run hourly from 14:00 to 18:00 UTC
-    - cron: '0 14-18 * * *'
+    # Run hourly from 14:00 to 18:00 UTC, at :37 to avoid top-of-hour queue delays
+    - cron: '37 14-18 * * *'
   workflow_dispatch: # Allow manual trigger via UI
 
 permissions:
