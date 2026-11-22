@@ -4,8 +4,11 @@ on:
   push:
     branches: [ "master" ]
   schedule:
-    # Run hourly from 14:00 to 18:00 UTC, at :37 to avoid top-of-hour queue delays
-    - cron: '37 14-18 * * *'
+    # Run hourly from 05:00 to 21:00 UTC, at :23 to avoid top-of-hour queue delays.
+    # GitHub drops/delays most scheduled runs under load, so we give it many slots;
+    # the script early-exits cheaply once tomorrow's prices are already saved, so the
+    # extra runs cost almost nothing and never create duplicate commits.
+    - cron: '23 5-21 * * *'
   workflow_dispatch: # Allow manual trigger via UI
 
 permissions:
